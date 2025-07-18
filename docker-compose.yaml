@@ -1,0 +1,4 @@
+include:
+  - path: 'vpn-reverse-proxy/docker-compose.yaml'
+  - path: 'dns-server/docker-compose.yaml'
+  - path: 'media-server/docker-compose.yaml'

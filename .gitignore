@@ -1,0 +1,46 @@
+# dns-server
+# pihole
+dns-server/etc-pihole/*
+# unbound
+dns-server/unbound/unbound.conf.d/*
+
+# media-server
+# jellyfin
+media-server/services/jellyfin/config/*
+media-server/services/jellyfin/cache/*
+media-server/movies/*
+media-server/shows/*
+
+# qbittorrent
+media-server/services/qbittorrent/appdata/*
+media-server/downloads/*
+
+# jellyseerr
+media-server/services/jellyseerr/appdata/config/*
+
+# sonarr
+media-server/services/sonarr/data/*
+media-server/shows/*
+media-server/downloads/*
+
+# radarr
+media-server/services/radarr/data/*
+media-server/movies/*
+media-server/downloads/*
+
+# lidarr
+media-server/services/lidarr/config/*
+media-server/music/*
+media-server/downloads/*
+
+# prowlarr
+media-server/services/prowlarr/data/*
+
+# vpn-reverse-proxy
+# tailscale
+vpn-reverse-proxy/tailscale/data/*
+
+# nginx-proxy-manager
+vpn-reverse-proxy/nginx-proxy-manager/data/*
+vpn-reverse-proxy/nginx-proxy-manager/lets-encrypt/*
+vpn-reverse-proxy/.env

@@ -1,0 +1,135 @@
+services:
+
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    user: 1000:1000
+    network_mode: container:vpn
+    volumes:
+      - ./services/jellyfin/config:/config
+      - ./services/jellyfin/cache:/cache
+      - ./movies:/movies
+      - ./shows:/shows
+      # Optional - extra fonts to be used during transcoding with subtitle burn-in
+      #- type: bind
+      #  source: /path/to/fonts
+      #  target: /usr/local/share/fonts/custom
+      #  read_only: true
+    # Optional - alternative address used for autodiscovery
+    #environment:
+    #  - JELLYFIN_PublishedServerUrl=http://192.168.1.200/
+    #ports:
+    #  - 8096:8096
+    restart: 'unless-stopped'
+    # Optional - may be necessary for docker healthcheck to pass if running in host network mode
+    #extra_hosts:
+    #  - 'host.docker.internal:host-gateway'
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: container:vpn
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIME_ZONE}
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
+    volumes:
+      - ./services/qbittorrent/appdata:/config
+      - ./downloads:/downloads
+    #ports:
+    #  - 8080:8080
+    #  - 6881:6881
+    #  - 6881:6881/udp
+    restart: unless-stopped
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    network_mode: container:vpn
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TIME_ZONE}
+      - PORT=5055
+    #ports:
+    #  - 5055:5055
+    volumes:
+      - ./services/jellyseerr/appdata/config:/app/config
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    network_mode: container:vpn
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIME_ZONE}
+    volumes:
+      - ./services/sonarr/data:/config
+      - ./shows:/shows
+      - ./downloads:/downloads
+    #ports:
+    #  - 8989:8989
+    restart: unless-stopped
+      
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    network_mode: container:vpn
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIME_ZONE}
+    volumes:
+      - ./services/radarr/data:/config
+      - ./movies:/movies
+      - ./downloads:/downloads
+    #ports:
+    #  - 7878:7878
+    restart: unless-stopped
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    network_mode: container:vpn
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIME_ZONE}
+    volumes:
+      - ./services/lidarr/config:/config
+      - ./music:/music
+      - ./downloads:/downloads
+    #ports:
+    #  - 8686:8686
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    network_mode: container:vpn
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIME_ZONE}
+    volumes:
+      - ./services/prowlarr/data:/config
+    #ports:
+    #  - 9696:9696
+    restart: unless-stopped
+
+  flaresolverr:
+    # DockerHub mirror flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    network_mode: container:vpn
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=${TIME_ZONE}
+    #ports:
+    #  - "${PORT:-8191}:8191"
+    restart: unless-stopped
