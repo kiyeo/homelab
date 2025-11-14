@@ -8,8 +8,7 @@ services:
     volumes:
       - ./services/jellyfin/config:/config
       - ./services/jellyfin/cache:/cache
-      - ./movies:/movies
-      - ./shows:/shows
+      - ./data/media:/data/media
       # Optional - extra fonts to be used during transcoding with subtitle burn-in
       #- type: bind
       #  source: /path/to/fonts
@@ -19,8 +18,8 @@ services:
     #environment:
     #  - JELLYFIN_PublishedServerUrl=http://192.168.1.200/
     #ports:
-    #  - 8096:8096
-    restart: 'unless-stopped'
+    #  - ${JELLYFIN_PORT}:${JELLYFIN_PORT}
+    restart: unless-stopped
     # Optional - may be necessary for docker healthcheck to pass if running in host network mode
     #extra_hosts:
     #  - 'host.docker.internal:host-gateway'
@@ -33,15 +32,32 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=${TIME_ZONE}
-      - WEBUI_PORT=8080
-      - TORRENTING_PORT=6881
+      - WEBUI_PORT=${QBITTORRENT_WEBUI_PORT}
+      - TORRENTING_PORT=${QBITTORRENT_TORRENTING_PORT}
     volumes:
       - ./services/qbittorrent/appdata:/config
-      - ./downloads:/downloads
+      - ./data/torrents/:/data/torrents
     #ports:
-    #  - 8080:8080
-    #  - 6881:6881
-    #  - 6881:6881/udp
+    #  - ${QBITTORRENT_WEBUI_PORT}:${QBITTORRENT_WEBUI_PORT}
+    #  - ${QBITTORRENT_TORRENTING_PORT}:${QBITTORRENT_TORRENTING_PORT}
+    #  - ${QBITTORRENT_TORRENTING_PORT}:${QBITTORRENT_TORRENTING_PORT}/udp
+    restart: unless-stopped
+
+  nzbget:
+    image: nzbgetcom/nzbget:latest
+    container_name: nzbget
+    network_mode: container:vpn
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIME_ZONE}
+      - NZBGET_USER=${NZBGET_USER} #optional
+      - NZBGET_PASS=${NZBGET_PASS} #optional
+    volumes:
+      - ./services/nzbget/config:/config
+      - ./data/usenet:/data/usenet
+    #ports:
+    #  - ${NZBGET_PORT}:${NZBGET_PORT}
     restart: unless-stopped
 
   jellyseerr:
@@ -51,9 +67,9 @@ services:
     environment:
       - LOG_LEVEL=debug
       - TZ=${TIME_ZONE}
-      - PORT=5055
+      - PORT=${JELLYSEERR_PORT}
     #ports:
-    #  - 5055:5055
+    #  - ${JELLYSEERR_PORT}:${JELLYSEERR_PORT}
     volumes:
       - ./services/jellyseerr/appdata/config:/app/config
     restart: unless-stopped
@@ -68,10 +84,9 @@ services:
       - TZ=${TIME_ZONE}
     volumes:
       - ./services/sonarr/data:/config
-      - ./shows:/shows
-      - ./downloads:/downloads
+      - ./data:/data
     #ports:
-    #  - 8989:8989
+    #  - ${SONARR_PORT}:${SONARR_PORT}
     restart: unless-stopped
       
   radarr:
@@ -84,10 +99,9 @@ services:
       - TZ=${TIME_ZONE}
     volumes:
       - ./services/radarr/data:/config
-      - ./movies:/movies
-      - ./downloads:/downloads
+      - ./data:/data
     #ports:
-    #  - 7878:7878
+    #  - ${RADARR_PORT}:${RADARR_PORT}
     restart: unless-stopped
 
   lidarr:
@@ -100,10 +114,40 @@ services:
       - TZ=${TIME_ZONE}
     volumes:
       - ./services/lidarr/config:/config
-      - ./music:/music
-      - ./downloads:/downloads
+      - ./data:/data
     #ports:
-    #  - 8686:8686
+    #  - ${LIDARR_PORT}:${LIDARR_PORT}
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    network_mode: container:vpn
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIME_ZONE}
+    volumes:
+      - ./services/bazarr/config:/config
+      - ./data/media:/data/media
+    #ports:
+    #  - ${BAZARR_PORT}:${BAZARR_PORT}
+    restart: unless-stopped
+
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:latest
+    container_name: recyclarr
+    user: 1000:1000
+    volumes:
+      - ./services/recyclarr:/config
+    environment:
+      - TZ=${TIME_ZONE}
+      - RECYCLARR_CREATE_CONFIG=true
+      - RADARR_BASE_URL=${RADARR_BASE_URL}
+      - RADARR_API_KEY=${RADARR_API_KEY}
+      - SONARR_BASE_URL=${SONARR_BASE_URL}
+      - SONARR_API_KEY=${SONARR_API_KEY}
+    network_mode: container:vpn
     restart: unless-stopped
 
   prowlarr:

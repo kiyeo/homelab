@@ -2,7 +2,7 @@ services:
   vpn:
     image: tailscale/tailscale
     container_name: vpn
-    restart: always
+    restart: unless-stopped
     hostname: vpn-reverse-proxy
     environment:
       - TS_AUTHKEY=${TS_AUTHKEY}
@@ -15,9 +15,12 @@ services:
       - 80:80
       - 81:81
       - 443:443
-      - 5335:5335
+      - ${UNBOUND_PORT}:${UNBOUND_PORT}
+      - ${JELLYSEERR_PORT}:${JELLYSEERR_PORT}
+      - ${JELLYFIN_PORT}:${JELLYFIN_PORT}
     volumes:
       - ./tailscale/data:/var/lib/tailscale
+    devices:
       - /dev/net/tun:/dev/net/tun
     cap_add:
       - net_admin
@@ -31,7 +34,7 @@ services:
   reverse-proxy:
     image: jc21/nginx-proxy-manager:2.12.3
     container_name: reverse-proxy
-    restart: always
+    restart: unless-stopped
     depends_on:
       - vpn
     network_mode: service:vpn
