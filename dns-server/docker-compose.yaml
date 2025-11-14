@@ -24,7 +24,7 @@ services:
       FTLCONF_webserver_api_password: 'admin'
       # If using Docker's default `bridge` network setting the dns listening mode should be set to 'all'
       FTLCONF_dns_listeningMode: 'all'
-      FTLCONF_webserver_port: 8088
+      FTLCONF_webserver_port: ${PIHOLE_WEBSERVER_PORT}
     # Volumes store your data between container upgrades
     volumes:
       # For persisting Pi-hole's databases and common configuration file

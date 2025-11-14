@@ -3,11 +3,7 @@ Fully automated HomeLab from empty disk to running services with a single comman
 
 ## Configuration
 
-In `vpn-reverse-proxy`, edit `.env.example` with your Tailscale authentication key and rename to `.env`. E.g. Where `XXX` is your Tailscale authentication key
-
-```
-echo "TS_AUTHKEY=XXX" > ./vpn-reverse-proxy/.env
-```
+Edit `.env.example` with desired configuration and copy/rename to `.env`.
 
 ## Start services
 
