@@ -58,16 +58,27 @@ media-server/services/recyclarr/*
 # prowlarr
 media-server/services/prowlarr/data/*
 
-# vpn-reverse-proxy
+# vpn
 # tailscale
-vpn-reverse-proxy/tailscale/data/
+vpn-server/tailscale/data/
 
+# proxy-server
 # nginx-proxy-manager
-vpn-reverse-proxy/nginx-proxy-manager/data/*
-vpn-reverse-proxy/nginx-proxy-manager/lets-encrypt/*
+proxy-server/nginx-proxy-manager/data/*
+proxy-server/nginx-proxy-manager/lets-encrypt/*
 
 # password manager
 # tailscale
 password-manager/tailscale/data/
 # vaultwarden
 password-manager/vaultwarden/data/*
+
+# cloud server
+# tailscale
+cloud-server/tailscale/data/
+# immich 
+cloud-server/immich/postgres/
+
+# home-assistant
+# tailscale
+hub/home-assistant/config/*

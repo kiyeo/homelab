@@ -42,7 +42,7 @@ services:
     restart: unless-stopped
   unbound:
     container_name: unbound
-    image: "mvance/unbound:latest"
+    image: "mvance/unbound-rpi:latest"
     network_mode: container:vpn
     #ports:
     #  - "53:53/tcp"

@@ -1,5 +1,4 @@
 services:
-
   jellyfin:
     image: jellyfin/jellyfin
     container_name: jellyfin
@@ -8,7 +7,7 @@ services:
     volumes:
       - ./services/jellyfin/config:/config
       - ./services/jellyfin/cache:/cache
-      - ./data/media:/data/media
+      - nas_media:/data/media
       # Optional - extra fonts to be used during transcoding with subtitle burn-in
       #- type: bind
       #  source: /path/to/fonts
@@ -36,7 +35,7 @@ services:
       - TORRENTING_PORT=${QBITTORRENT_TORRENTING_PORT}
     volumes:
       - ./services/qbittorrent/appdata:/config
-      - ./data/torrents/:/data/torrents
+      - nas_torrents:/data/torrents
     #ports:
     #  - ${QBITTORRENT_WEBUI_PORT}:${QBITTORRENT_WEBUI_PORT}
     #  - ${QBITTORRENT_TORRENTING_PORT}:${QBITTORRENT_TORRENTING_PORT}
@@ -55,7 +54,7 @@ services:
       - NZBGET_PASS=${NZBGET_PASS} #optional
     volumes:
       - ./services/nzbget/config:/config
-      - ./data/usenet:/data/usenet
+      - nas_usenet:/data/usenet
     #ports:
     #  - ${NZBGET_PORT}:${NZBGET_PORT}
     restart: unless-stopped
@@ -84,11 +83,11 @@ services:
       - TZ=${TIME_ZONE}
     volumes:
       - ./services/sonarr/data:/config
-      - ./data:/data
+      - nas_data:/data
     #ports:
     #  - ${SONARR_PORT}:${SONARR_PORT}
     restart: unless-stopped
-      
+
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
@@ -99,7 +98,7 @@ services:
       - TZ=${TIME_ZONE}
     volumes:
       - ./services/radarr/data:/config
-      - ./data:/data
+      - nas_data:/data
     #ports:
     #  - ${RADARR_PORT}:${RADARR_PORT}
     restart: unless-stopped
@@ -114,7 +113,7 @@ services:
       - TZ=${TIME_ZONE}
     volumes:
       - ./services/lidarr/config:/config
-      - ./data:/data
+      - nas_data:/data
     #ports:
     #  - ${LIDARR_PORT}:${LIDARR_PORT}
     restart: unless-stopped
@@ -129,7 +128,7 @@ services:
       - TZ=${TIME_ZONE}
     volumes:
       - ./services/bazarr/config:/config
-      - ./data/media:/data/media
+      - nas_media:/data/media
     #ports:
     #  - ${BAZARR_PORT}:${BAZARR_PORT}
     restart: unless-stopped
@@ -177,3 +176,29 @@ services:
     #ports:
     #  - "${PORT:-8191}:8191"
     restart: unless-stopped
+
+volumes:
+  nas_data:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: "username=leo,uid=1000,gid=1000"
+      device: "//127.0.0.1/shared/data"
+  nas_media:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: "username=leo,uid=1000,gid=1000"
+      device: "//127.0.0.1/shared/data/media"
+  nas_torrents:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: "username=leo,uid=1000,gid=1000"
+      device: "//127.0.0.1/shared/data/torrents"
+  nas_usenet:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: "username=leo,uid=1000,gid=1000"
+      device: "//127.0.0.1/shared/data/usenet"

@@ -1,5 +1,8 @@
 include:
-  - path: 'vpn-reverse-proxy/docker-compose.yaml'
-  - path: 'dns-server/docker-compose.yaml'
-  - path: 'media-server/docker-compose.yaml'
-  - path: 'password-manager/docker-compose.yaml'
+  - path: "vpn-server/docker-compose.yaml"
+  - path: "proxy-server/docker-compose.yaml"
+  - path: "dns-server/docker-compose.yaml"
+  - path: "media-server/docker-compose.yaml"
+  - path: "password-manager/docker-compose.yaml"
+  - path: "cloud-server/docker-compose.yaml"
+  - path: "hub/docker-compose.yaml"
