@@ -49,8 +49,10 @@ services:
     #  - '2283:2283'
     network_mode: service:immich-ts
     depends_on:
-      - redis
-      - database
+      redis:
+        condition: service_started
+      database:
+        condition: service_started
     restart: always
     healthcheck:
       disable: false

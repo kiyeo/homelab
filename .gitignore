@@ -37,8 +37,8 @@ media-server/services/qbittorrent/appdata/*
 # nzbget
 media-server/services/nzbget/config/*
 
-# jellyseerr
-media-server/services/jellyseerr/appdata/config/*
+# seerr
+media-server/services/seerr/appdata/config/*
 
 # sonarr
 media-server/services/sonarr/data/*
@@ -82,3 +82,6 @@ cloud-server/immich/postgres/
 # home-assistant
 # tailscale
 hub/home-assistant/config/*
+
+# zabbix
+uptime-monitoring-service/zabbix/**/*

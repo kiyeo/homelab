@@ -4,6 +4,10 @@ services:
     container_name: jellyfin
     user: 1000:1000
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     volumes:
       - ./services/jellyfin/config:/config
       - ./services/jellyfin/cache:/cache
@@ -27,6 +31,10 @@ services:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
@@ -46,6 +54,10 @@ services:
     image: nzbgetcom/nzbget:latest
     container_name: nzbget
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
@@ -59,24 +71,39 @@ services:
     #  - ${NZBGET_PORT}:${NZBGET_PORT}
     restart: unless-stopped
 
-  jellyseerr:
-    image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - LOG_LEVEL=debug
       - TZ=${TIME_ZONE}
-      - PORT=${JELLYSEERR_PORT}
+      - PORT=${SEERR_PORT}
     #ports:
-    #  - ${JELLYSEERR_PORT}:${JELLYSEERR_PORT}
+    #  - ${SEERR_PORT}:${SEERR_PORT}
     volumes:
-      - ./services/jellyseerr/appdata/config:/app/config
+      - ./services/seerr/appdata/config:/app/config
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
     restart: unless-stopped
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
@@ -92,6 +119,10 @@ services:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
@@ -107,6 +138,10 @@ services:
     image: lscr.io/linuxserver/lidarr:latest
     container_name: lidarr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
@@ -122,6 +157,10 @@ services:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
@@ -147,12 +186,20 @@ services:
       - SONARR_BASE_URL=${SONARR_BASE_URL}
       - SONARR_API_KEY=${SONARR_API_KEY}
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     restart: unless-stopped
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
@@ -168,6 +215,10 @@ services:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - LOG_HTML=${LOG_HTML:-false}

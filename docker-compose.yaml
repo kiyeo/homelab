@@ -6,3 +6,4 @@ include:
   - path: "password-manager/docker-compose.yaml"
   - path: "cloud-server/docker-compose.yaml"
   - path: "hub/docker-compose.yaml"
+  - path: "uptime-monitoring-service/docker-compose.yaml"

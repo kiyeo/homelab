@@ -16,7 +16,7 @@ services:
       - 81:81
       - 443:443
       - ${UNBOUND_PORT}:${UNBOUND_PORT}
-      - ${JELLYSEERR_PORT}:${JELLYSEERR_PORT}
+      - ${SEERR_PORT}:${SEERR_PORT}
       - ${JELLYFIN_PORT}:${JELLYFIN_PORT}
     volumes:
       - ./tailscale/data:/var/lib/tailscale
