@@ -9,8 +9,8 @@ services:
         condition: service_healthy
         restart: true
     volumes:
-      - ./services/jellyfin/config:/config
-      - ./services/jellyfin/cache:/cache
+      - ./services/jellyfin/config/:/config
+      - ./services/jellyfin/cache/:/cache
       - nas_media:/data/media
       # Optional - extra fonts to be used during transcoding with subtitle burn-in
       #- type: bind
@@ -42,7 +42,7 @@ services:
       - WEBUI_PORT=${QBITTORRENT_WEBUI_PORT}
       - TORRENTING_PORT=${QBITTORRENT_TORRENTING_PORT}
     volumes:
-      - ./services/qbittorrent/appdata:/config
+      - ./services/qbittorrent:/config
       - nas_torrents:/data/torrents
     #ports:
     #  - ${QBITTORRENT_WEBUI_PORT}:${QBITTORRENT_WEBUI_PORT}
@@ -65,7 +65,7 @@ services:
       - NZBGET_USER=${NZBGET_USER} #optional
       - NZBGET_PASS=${NZBGET_PASS} #optional
     volumes:
-      - ./services/nzbget/config:/config
+      - ./services/nzbget:/config
       - nas_usenet:/data/usenet
     #ports:
     #  - ${NZBGET_PORT}:${NZBGET_PORT}
@@ -87,7 +87,7 @@ services:
     #ports:
     #  - ${SEERR_PORT}:${SEERR_PORT}
     volumes:
-      - ./services/seerr/appdata/config:/app/config
+      - ./services/seerr:/app/config
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
       start_period: 20s
@@ -109,7 +109,7 @@ services:
       - PGID=1000
       - TZ=${TIME_ZONE}
     volumes:
-      - ./services/sonarr/data:/config
+      - ./services/sonarr:/config
       - nas_data:/data
     #ports:
     #  - ${SONARR_PORT}:${SONARR_PORT}
@@ -128,7 +128,7 @@ services:
       - PGID=1000
       - TZ=${TIME_ZONE}
     volumes:
-      - ./services/radarr/data:/config
+      - ./services/radarr:/config
       - nas_data:/data
     #ports:
     #  - ${RADARR_PORT}:${RADARR_PORT}
@@ -147,7 +147,7 @@ services:
       - PGID=1000
       - TZ=${TIME_ZONE}
     volumes:
-      - ./services/lidarr/config:/config
+      - ./services/lidarr:/config
       - nas_data:/data
     #ports:
     #  - ${LIDARR_PORT}:${LIDARR_PORT}
@@ -166,7 +166,7 @@ services:
       - PGID=1000
       - TZ=${TIME_ZONE}
     volumes:
-      - ./services/bazarr/config:/config
+      - ./services/bazarr:/config
       - nas_media:/data/media
     #ports:
     #  - ${BAZARR_PORT}:${BAZARR_PORT}
@@ -205,7 +205,7 @@ services:
       - PGID=1000
       - TZ=${TIME_ZONE}
     volumes:
-      - ./services/prowlarr/data:/config
+      - ./services/prowlarr:/config
     #ports:
     #  - 9696:9696
     restart: unless-stopped

@@ -18,6 +18,8 @@ services:
       - ${UNBOUND_PORT}:${UNBOUND_PORT}
       - ${SEERR_PORT}:${SEERR_PORT}
       - ${JELLYFIN_PORT}:${JELLYFIN_PORT}
+      - ${PIHOLE_WEBSERVER_PORT}:${PIHOLE_WEBSERVER_PORT}
+      - ${PROWLARR_PORT}:${PROWLARR_PORT}
     volumes:
       - ./tailscale/data:/var/lib/tailscale
     devices:

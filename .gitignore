@@ -32,31 +32,31 @@ media-server/services/jellyfin/config/*
 media-server/services/jellyfin/cache/*
 
 # qbittorrent
-media-server/services/qbittorrent/appdata/*
+media-server/services/qbittorrent/*
 
 # nzbget
-media-server/services/nzbget/config/*
+media-server/services/nzbget/*
 
 # seerr
-media-server/services/seerr/appdata/config/*
+media-server/services/seerr/*
 
 # sonarr
-media-server/services/sonarr/data/*
+media-server/services/sonarr/*
 
 # radarr
-media-server/services/radarr/data/*
+media-server/services/radarr/*
 
 # lidarr
-media-server/services/lidarr/config/*
+media-server/services/lidarr/*
 
 # bazarr
-media-server/services/bazarr/config/*
+media-server/services/bazarr/*
 
 # recyclarr
 media-server/services/recyclarr/*
 
 # prowlarr
-media-server/services/prowlarr/data/*
+media-server/services/prowlarr/*
 
 # vpn
 # tailscale
@@ -81,7 +81,7 @@ cloud-server/immich/postgres/
 
 # home-assistant
 # tailscale
-hub/home-assistant/config/*
+hub/home-assistant/*
 
 # zabbix
 uptime-monitoring-service/zabbix/**/*

@@ -1,0 +1,12 @@
+docker-backup.log
+exclude-backup-list
+
+.git
+.gitignore
+**/.env.example
+**/backup.sh
+**/docker-compose.yaml
+README.md
+LICENSE
+diagram.svg
+**/tailscale/
