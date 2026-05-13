@@ -9,4 +9,12 @@ exclude-backup-list
 README.md
 LICENSE
 diagram.svg
-**/tailscale/
+**/tailscale
+**/cache
+**/.cache
+**/metadata
+**/log
+**/logs
+**/MediaCover
+**/backup
+**/Backups
