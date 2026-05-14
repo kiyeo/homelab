@@ -1,7 +1,7 @@
 # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
 services:
   pihole:
-    image: pihole/pihole:v6.4.2
+    image: pihole/pihole:2026.05.0
     container_name: pihole
     network_mode: container:vpn
     depends_on:
@@ -44,11 +44,6 @@ services:
       - SYS_TIME
       # Optional, if Pi-hole should get some more processing time
       - SYS_NICE
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-          cpus: "1.0"
     restart: unless-stopped
   unbound:
     container_name: unbound
@@ -64,9 +59,4 @@ services:
     volumes:
       - ./unbound/unbound.conf.d/pi-hole.conf:/opt/unbound/etc/unbound/pi-hole.conf
       - ./unbound/unbound.conf.d/unbound.conf:/opt/unbound/etc/unbound/unbound.conf:ro
-    deploy:
-      resources:
-        limits:
-          memory: 128M
-          cpus: "0.5"
     restart: unless-stopped

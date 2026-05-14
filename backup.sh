@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source .env
+
 # Define the log function
 log() {
   echo "[$(date)] $*"
@@ -17,7 +19,7 @@ touch $LOG_FILE
 
 # 1. Ensure NAS is mounted
 if ! mountpoint -q "$MOUNT_POINT"; then
-  sudo mount -t cifs -o credentials=./.credentials,uid=1000,gid=1000,vers=3.0 "$NAS_PATH" "$MOUNT_POINT"
+  sudo mount -t cifs -o username="$USERNAME",uid=1000,gid=1000,vers=3.0 "$NAS_PATH" "$MOUNT_POINT"
 fi
 
 if [ ! -d "$BACKUP_DEST" ]; then
