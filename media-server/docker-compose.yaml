@@ -1,6 +1,6 @@
 services:
   jellyfin:
-    image: jellyfin/jellyfin
+    image: jellyfin/jellyfin:10.11.8
     container_name: jellyfin
     user: 1000:1000
     network_mode: container:vpn
@@ -23,12 +23,17 @@ services:
     #ports:
     #  - ${JELLYFIN_PORT}:${JELLYFIN_PORT}
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "2.0"
     # Optional - may be necessary for docker healthcheck to pass if running in host network mode
     #extra_hosts:
     #  - 'host.docker.internal:host-gateway'
 
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
+    image: lscr.io/linuxserver/qbittorrent:5.2.0
     container_name: qbittorrent
     network_mode: container:vpn
     depends_on:
@@ -49,9 +54,14 @@ services:
     #  - ${QBITTORRENT_TORRENTING_PORT}:${QBITTORRENT_TORRENTING_PORT}
     #  - ${QBITTORRENT_TORRENTING_PORT}:${QBITTORRENT_TORRENTING_PORT}/udp
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
 
   nzbget:
-    image: nzbgetcom/nzbget:latest
+    image: nzbgetcom/nzbget:v26.1
     container_name: nzbget
     network_mode: container:vpn
     depends_on:
@@ -70,9 +80,14 @@ services:
     #ports:
     #  - ${NZBGET_PORT}:${NZBGET_PORT}
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
 
   seerr:
-    image: ghcr.io/seerr-team/seerr:latest
+    image: ghcr.io/seerr-team/seerr:v3.2.0
     init: true
     container_name: seerr
     network_mode: container:vpn
@@ -97,7 +112,7 @@ services:
     restart: unless-stopped
 
   sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
+    image: lscr.io/linuxserver/sonarr:4.0.17
     container_name: sonarr
     network_mode: container:vpn
     depends_on:
@@ -114,9 +129,14 @@ services:
     #ports:
     #  - ${SONARR_PORT}:${SONARR_PORT}
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
 
   radarr:
-    image: lscr.io/linuxserver/radarr:latest
+    image: lscr.io/linuxserver/radarr:6.1.1
     container_name: radarr
     network_mode: container:vpn
     depends_on:
@@ -133,9 +153,14 @@ services:
     #ports:
     #  - ${RADARR_PORT}:${RADARR_PORT}
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
 
   lidarr:
-    image: lscr.io/linuxserver/lidarr:latest
+    image: lscr.io/linuxserver/lidarr:3.1.0
     container_name: lidarr
     network_mode: container:vpn
     depends_on:
@@ -152,9 +177,14 @@ services:
     #ports:
     #  - ${LIDARR_PORT}:${LIDARR_PORT}
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
 
   bazarr:
-    image: lscr.io/linuxserver/bazarr:latest
+    image: lscr.io/linuxserver/bazarr:1.5.6
     container_name: bazarr
     network_mode: container:vpn
     depends_on:
@@ -173,7 +203,7 @@ services:
     restart: unless-stopped
 
   recyclarr:
-    image: ghcr.io/recyclarr/recyclarr:latest
+    image: ghcr.io/recyclarr/recyclarr:8.6.0
     container_name: recyclarr
     user: 1000:1000
     volumes:
@@ -191,9 +221,14 @@ services:
         condition: service_healthy
         restart: true
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
 
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
+    image: lscr.io/linuxserver/prowlarr:2.3.5
     container_name: prowlarr
     network_mode: container:vpn
     depends_on:
@@ -209,10 +244,15 @@ services:
     #ports:
     #  - 9696:9696
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
 
   flaresolverr:
     # DockerHub mirror flaresolverr/flaresolverr:latest
-    image: ghcr.io/flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:v3.4.6
     container_name: flaresolverr
     network_mode: container:vpn
     depends_on:
@@ -227,29 +267,34 @@ services:
     #ports:
     #  - "${PORT:-8191}:8191"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
 
 volumes:
   nas_data:
     driver: local
     driver_opts:
       type: cifs
-      o: "username=leo,uid=1000,gid=1000"
+      o: "credentials=../.credentials,uid=1000,gid=1000,vers=3.0"
       device: "//127.0.0.1/shared/data"
   nas_media:
     driver: local
     driver_opts:
       type: cifs
-      o: "username=leo,uid=1000,gid=1000"
+      o: "credentials=../.credentials,uid=1000,gid=1000,vers=3.0"
       device: "//127.0.0.1/shared/data/media"
   nas_torrents:
     driver: local
     driver_opts:
       type: cifs
-      o: "username=leo,uid=1000,gid=1000"
+      o: "credentials=../.credentials,uid=1000,gid=1000,vers=3.0"
       device: "//127.0.0.1/shared/data/torrents"
   nas_usenet:
     driver: local
     driver_opts:
       type: cifs
-      o: "username=leo,uid=1000,gid=1000"
+      o: "credentials=../.credentials,uid=1000,gid=1000,vers=3.0"
       device: "//127.0.0.1/shared/data/usenet"

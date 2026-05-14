@@ -17,7 +17,7 @@ touch $LOG_FILE
 
 # 1. Ensure NAS is mounted
 if ! mountpoint -q "$MOUNT_POINT"; then
-  sudo mount -t cifs -o username=leo,uid=1000,gid=1000 "$NAS_PATH" "$MOUNT_POINT"
+  sudo mount -t cifs -o credentials=./.credentials,uid=1000,gid=1000,vers=3.0 "$NAS_PATH" "$MOUNT_POINT"
 fi
 
 if [ ! -d "$BACKUP_DEST" ]; then
@@ -37,10 +37,10 @@ docker compose stop >> "$LOG_FILE" 2>&1
 
 # 4. Sync data into the temp folder
 # We use -R to maintain the directory structure in the archive
-find . -name "docker-compose.yaml" -not -path "./$TEMP_BACKUP_DIR/*" -exec dirname {} \; | while read -r stack_dir; do
+while read -r stack_dir; do
     log "Syncing: $stack_dir" >> "$LOG_FILE"
     rsync -avz --exclude-from="exclude-backup-list" "$stack_dir" "$TEMP_BACKUP_DIR/" >> "$LOG_FILE" 2>&1
-done
+done < <(find . -name "docker-compose.yaml" -not -path "./$TEMP_BACKUP_DIR/*" -exec dirname {} \;)
 
 # 5. Restart services immediately to minimize downtime
 docker compose start >> "$LOG_FILE" 2>&1

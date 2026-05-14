@@ -1,6 +1,6 @@
 services:
   postgresql-server:
-    image: postgres:latest
+    image: postgres:18.3-trixie
     container_name: postgresql-server
     restart: unless-stopped
     network_mode: container:vpn
@@ -14,9 +14,14 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - ./zabbix/postgresql-data:/var/lib/postgresql/18
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
 
   zabbix-server:
-    image: zabbix/zabbix-server-pgsql:latest
+    image: zabbix/zabbix-server-pgsql:7.4.10
     container_name: zabbix-server
     restart: unless-stopped
     network_mode: container:vpn
@@ -34,9 +39,14 @@ services:
       - ./zabbix/server-data:/var/lib/zabbix
       - ./zabbix/snmptraps-data:/var/lib/zabbix/snmptraps
       - ./zabbix/export-data:/var/lib/zabbix/export
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
 
   zabbix-web-nginx-pgsql:
-    image: zabbix/zabbix-web-nginx-pgsql:latest
+    image: zabbix/zabbix-web-nginx-pgsql:7.4.10
     container_name: zabbix-web
     restart: unless-stopped
     network_mode: container:vpn
@@ -56,15 +66,21 @@ services:
     #  - "${ZABBIX_FRONTEND_PORT}:8080"
     volumes:
       - ./zabbix/web-data:/usr/share/zabbix/ui
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
 
   zabbix-agent:
-    image: zabbix/zabbix-agent:latest
+    image: zabbix/zabbix-agent:7.4.10
     container_name: zabbix-agent
     restart: unless-stopped
     network_mode: container:vpn
     depends_on:
       zabbix-server:
         condition: service_started
+    user: root
     environment:
       ZBX_HOSTNAME: "media-server"
       ZBX_SERVER_HOST: 100.93.87.30
@@ -72,4 +88,5 @@ services:
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run
-    privileged: true
+    cap_add:
+      - SYS_PTRACE

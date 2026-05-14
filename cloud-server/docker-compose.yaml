@@ -11,28 +11,30 @@ name: immich
 
 services:
   immich-ts:
-    image: tailscale/tailscale
+    image: tailscale/tailscale:v1.96.5
     container_name: immich-ts
     restart: unless-stopped
     hostname: immich
     environment:
       - TS_AUTHKEY=${TS_AUTHKEY}
       - TS_STATE_DIR=/var/lib/tailscale
-      - TS_USERSPACE=false
+      - TS_USERSPACE=true
       - TS_SERVE_CONFIG=/config/serve.json
     volumes:
       - ./tailscale/data:/var/lib/tailscale
       - ./tailscale/config:/config
-    devices:
-      - /dev/net/tun:/dev/net/tun
     cap_add:
       - net_admin
-      - sys_module
     healthcheck:
       test: tailscale status --peers=false --json | grep -q 'Online.*true'
       interval: 15s
       timeout: 3s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
   immich-server:
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
@@ -56,6 +58,11 @@ services:
     restart: always
     healthcheck:
       disable: false
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "2.0"
 
   immich-machine-learning:
     container_name: immich_machine_learning
@@ -72,6 +79,11 @@ services:
     restart: always
     healthcheck:
       disable: false
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
 
   redis:
     container_name: immich_redis
@@ -79,6 +91,11 @@ services:
     healthcheck:
       test: redis-cli ping || exit 1
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
 
   database:
     container_name: immich_postgres
@@ -95,6 +112,11 @@ services:
       - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
     shm_size: 128mb
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
 
 volumes:
   model-cache:
@@ -102,5 +124,5 @@ volumes:
     driver: local
     driver_opts:
       type: cifs
-      o: "username=leo,uid=1000,gid=1000"
+      o: "credentials=../.credentials,uid=1000,gid=1000,vers=3.0"
       device: "//127.0.0.1/shared/immich"
