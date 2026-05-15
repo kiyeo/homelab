@@ -1,0 +1,77 @@
+services:
+  postgresql-server:
+    image: postgres:18.3-trixie
+    container_name: postgresql-server
+    restart: unless-stopped
+    network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./zabbix/postgresql-data:/var/lib/postgresql/18
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:7.4-ol-latest
+    container_name: zabbix-server
+    restart: unless-stopped
+    network_mode: container:vpn
+    depends_on:
+      postgresql-server:
+        condition: service_started
+    environment:
+      DB_SERVER_HOST: 100.93.87.30
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    #ports:
+    #  - "10051:10051"
+    volumes:
+      - ./zabbix/server-data:/var/lib/zabbix
+      - ./zabbix/snmptraps-data:/var/lib/zabbix/snmptraps
+      - ./zabbix/export-data:/var/lib/zabbix/export
+
+  zabbix-web-nginx-pgsql:
+    image: zabbix/zabbix-web-nginx-pgsql:7.4-ol-latest
+    container_name: zabbix-web
+    restart: unless-stopped
+    network_mode: container:vpn
+    depends_on:
+      postgresql-server:
+        condition: service_started
+      zabbix-server:
+        condition: service_started
+    environment:
+      DB_SERVER_HOST: 100.93.87.30
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      ZBX_SERVER_HOST: 100.93.87.30
+      PHP_TZ: ${PHP_TZ}
+    #ports:
+    #  - "${ZABBIX_FRONTEND_PORT}:8080"
+    volumes:
+      - ./zabbix/web-data:/usr/share/zabbix/ui
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent:7.4-ol-latest
+    container_name: zabbix-agent
+    restart: unless-stopped
+    network_mode: container:vpn
+    depends_on:
+      zabbix-server:
+        condition: service_started
+    user: root
+    environment:
+      ZBX_HOSTNAME: "media-server"
+      ZBX_SERVER_HOST: 100.93.87.30
+      ZBX_SERVER_ACTIVE: 100.93.87.30
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run
+    cap_add:
+      - SYS_PTRACE

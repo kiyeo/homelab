@@ -32,42 +32,56 @@ media-server/services/jellyfin/config/*
 media-server/services/jellyfin/cache/*
 
 # qbittorrent
-media-server/services/qbittorrent/appdata/*
+media-server/services/qbittorrent/*
 
 # nzbget
-media-server/services/nzbget/config/*
+media-server/services/nzbget/*
 
-# jellyseerr
-media-server/services/jellyseerr/appdata/config/*
+# seerr
+media-server/services/seerr/*
 
 # sonarr
-media-server/services/sonarr/data/*
+media-server/services/sonarr/*
 
 # radarr
-media-server/services/radarr/data/*
+media-server/services/radarr/*
 
 # lidarr
-media-server/services/lidarr/config/*
+media-server/services/lidarr/*
 
 # bazarr
-media-server/services/bazarr/config/*
+media-server/services/bazarr/*
 
 # recyclarr
 media-server/services/recyclarr/*
 
 # prowlarr
-media-server/services/prowlarr/data/*
+media-server/services/prowlarr/*
 
-# vpn-reverse-proxy
+# vpn
 # tailscale
-vpn-reverse-proxy/tailscale/data/
+vpn-server/tailscale/data/
 
+# proxy-server
 # nginx-proxy-manager
-vpn-reverse-proxy/nginx-proxy-manager/data/*
-vpn-reverse-proxy/nginx-proxy-manager/lets-encrypt/*
+proxy-server/nginx-proxy-manager/data/*
+proxy-server/nginx-proxy-manager/lets-encrypt/*
 
 # password manager
 # tailscale
 password-manager/tailscale/data/
 # vaultwarden
 password-manager/vaultwarden/data/*
+
+# cloud server
+# tailscale
+cloud-server/tailscale/data/
+# immich 
+cloud-server/immich/postgres/
+
+# home-assistant
+# tailscale
+hub/home-assistant/*
+
+# zabbix
+uptime-monitoring-service/zabbix/**/*

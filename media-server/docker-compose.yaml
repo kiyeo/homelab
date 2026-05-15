@@ -1,14 +1,17 @@
 services:
-
   jellyfin:
-    image: jellyfin/jellyfin
+    image: jellyfin/jellyfin:10.11.8
     container_name: jellyfin
     user: 1000:1000
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     volumes:
-      - ./services/jellyfin/config:/config
-      - ./services/jellyfin/cache:/cache
-      - ./data/media:/data/media
+      - ./services/jellyfin/config/:/config
+      - ./services/jellyfin/cache/:/cache
+      - nas_media:/data/media
       # Optional - extra fonts to be used during transcoding with subtitle burn-in
       #- type: bind
       #  source: /path/to/fonts
@@ -25,9 +28,13 @@ services:
     #  - 'host.docker.internal:host-gateway'
 
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
+    image: lscr.io/linuxserver/qbittorrent:5.2.0
     container_name: qbittorrent
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
@@ -35,8 +42,8 @@ services:
       - WEBUI_PORT=${QBITTORRENT_WEBUI_PORT}
       - TORRENTING_PORT=${QBITTORRENT_TORRENTING_PORT}
     volumes:
-      - ./services/qbittorrent/appdata:/config
-      - ./data/torrents/:/data/torrents
+      - ./services/qbittorrent:/config
+      - nas_torrents:/data/torrents
     #ports:
     #  - ${QBITTORRENT_WEBUI_PORT}:${QBITTORRENT_WEBUI_PORT}
     #  - ${QBITTORRENT_TORRENTING_PORT}:${QBITTORRENT_TORRENTING_PORT}
@@ -44,9 +51,13 @@ services:
     restart: unless-stopped
 
   nzbget:
-    image: nzbgetcom/nzbget:latest
+    image: nzbgetcom/nzbget:v26.1
     container_name: nzbget
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
@@ -54,88 +65,115 @@ services:
       - NZBGET_USER=${NZBGET_USER} #optional
       - NZBGET_PASS=${NZBGET_PASS} #optional
     volumes:
-      - ./services/nzbget/config:/config
-      - ./data/usenet:/data/usenet
+      - ./services/nzbget:/config
+      - nas_usenet:/data/usenet
     #ports:
     #  - ${NZBGET_PORT}:${NZBGET_PORT}
     restart: unless-stopped
 
-  jellyseerr:
-    image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
+  seerr:
+    image: ghcr.io/seerr-team/seerr:v3.2.0
+    init: true
+    container_name: seerr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - LOG_LEVEL=debug
       - TZ=${TIME_ZONE}
-      - PORT=${JELLYSEERR_PORT}
+      - PORT=${SEERR_PORT}
     #ports:
-    #  - ${JELLYSEERR_PORT}:${JELLYSEERR_PORT}
+    #  - ${SEERR_PORT}:${SEERR_PORT}
     volumes:
-      - ./services/jellyseerr/appdata/config:/app/config
+      - ./services/seerr:/app/config
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
     restart: unless-stopped
 
   sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
+    image: lscr.io/linuxserver/sonarr:4.0.17
     container_name: sonarr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=${TIME_ZONE}
     volumes:
-      - ./services/sonarr/data:/config
-      - ./data:/data
+      - ./services/sonarr:/config
+      - nas_data:/data
     #ports:
     #  - ${SONARR_PORT}:${SONARR_PORT}
     restart: unless-stopped
-      
+
   radarr:
-    image: lscr.io/linuxserver/radarr:latest
+    image: lscr.io/linuxserver/radarr:6.1.1
     container_name: radarr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=${TIME_ZONE}
     volumes:
-      - ./services/radarr/data:/config
-      - ./data:/data
+      - ./services/radarr:/config
+      - nas_data:/data
     #ports:
     #  - ${RADARR_PORT}:${RADARR_PORT}
     restart: unless-stopped
 
   lidarr:
-    image: lscr.io/linuxserver/lidarr:latest
+    image: lscr.io/linuxserver/lidarr:3.1.0
     container_name: lidarr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=${TIME_ZONE}
     volumes:
-      - ./services/lidarr/config:/config
-      - ./data:/data
+      - ./services/lidarr:/config
+      - nas_data:/data
     #ports:
     #  - ${LIDARR_PORT}:${LIDARR_PORT}
     restart: unless-stopped
 
   bazarr:
-    image: lscr.io/linuxserver/bazarr:latest
+    image: lscr.io/linuxserver/bazarr:1.5.6
     container_name: bazarr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=${TIME_ZONE}
     volumes:
-      - ./services/bazarr/config:/config
-      - ./data/media:/data/media
+      - ./services/bazarr:/config
+      - nas_media:/data/media
     #ports:
     #  - ${BAZARR_PORT}:${BAZARR_PORT}
     restart: unless-stopped
 
   recyclarr:
-    image: ghcr.io/recyclarr/recyclarr:latest
+    image: ghcr.io/recyclarr/recyclarr:8.6.0
     container_name: recyclarr
     user: 1000:1000
     volumes:
@@ -148,27 +186,39 @@ services:
       - SONARR_BASE_URL=${SONARR_BASE_URL}
       - SONARR_API_KEY=${SONARR_API_KEY}
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     restart: unless-stopped
 
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
+    image: lscr.io/linuxserver/prowlarr:2.3.5
     container_name: prowlarr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=${TIME_ZONE}
     volumes:
-      - ./services/prowlarr/data:/config
+      - ./services/prowlarr:/config
     #ports:
     #  - 9696:9696
     restart: unless-stopped
 
   flaresolverr:
     # DockerHub mirror flaresolverr/flaresolverr:latest
-    image: ghcr.io/flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:v3.4.6
     container_name: flaresolverr
     network_mode: container:vpn
+    depends_on:
+      vpn:
+        condition: service_healthy
+        restart: true
     environment:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - LOG_HTML=${LOG_HTML:-false}
@@ -177,3 +227,29 @@ services:
     #ports:
     #  - "${PORT:-8191}:8191"
     restart: unless-stopped
+
+volumes:
+  nas_data:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: "username=${USERNAME},uid=1000,gid=1000,vers=3.0"
+      device: "//127.0.0.1/shared/data"
+  nas_media:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: "username=${USERNAME},uid=1000,gid=1000,vers=3.0"
+      device: "//127.0.0.1/shared/data/media"
+  nas_torrents:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: "username=${USERNAME},uid=1000,gid=1000,vers=3.0"
+      device: "//127.0.0.1/shared/data/torrents"
+  nas_usenet:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: "username=${USERNAME},uid=1000,gid=1000,vers=3.0"
+      device: "//127.0.0.1/shared/data/usenet"
