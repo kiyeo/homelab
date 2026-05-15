@@ -85,3 +85,9 @@ hub/home-assistant/*
 
 # zabbix
 uptime-monitoring-service/zabbix/**/*
+
+# llm
+llm/models/**/*
+llm/open-webui
+llm/open-terminal
+llm/searxng

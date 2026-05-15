@@ -1,0 +1,116 @@
+services:
+  llama:
+    image: ghcr.io/ggml-org/llama.cpp:full-cuda
+    container_name: llama
+    ports:
+      - "${LLAMA_PORT}:${LLAMA_PORT}"
+    volumes:
+      - ./models:/models # Put your .gguf files in a 'models' subfolder
+    environment:
+      # These variables are critical for the NVIDIA runtime to activate
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - GGML_CUDA_NO_PINNED=1 # WSL2: pinned memory causes allocation failures
+      - GGML_CUDA_FORCE_MPS=0 # Disable MPS on WSL2 (not supported)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        case "${MODEL_TYPE}" in
+          gemma)
+            exec /app/llama-server \
+              --model "/models/${MY_MODEL}" \
+              --alias "${MY_MODEL_ALIAS}" \
+              --host 0.0.0.0 \
+              --port "${LLAMA_PORT}" \
+              --ctx-size 32768 \
+              --temp 1.0 --top-p 0.95 --top-k 64 \
+              --repeat-penalty 1.0 \
+              -ctk q8_0 -ctv q8_0 \
+              --flash-attn on \
+              --cache-type-k q4_0 --cache-type-v q4_0 \
+              --batch-size 512 --ubatch-size 512 \
+              --threads 10 --threads-batch 16 \
+              --parallel 1 --prio 2 --jinja
+            ;;
+          gemma-vision)
+            exec /app/llama-server \
+              -m "/models/${MY_MODEL}" \
+              --mmproj "/models/${VISION_MODEL}" \
+              --alias "${MY_MODEL_ALIAS}" \
+              --host 0.0.0.0 --port "${LLAMA_PORT}" \
+              --ctx-size 8192 \
+              --temp 1.0 --top-p 0.95 --top-k 64 \
+              --repeat-penalty 1.0 \
+              -ctk q8_0 -ctv q8_0 \
+              --flash-attn on \
+              --cache-type-k q4_0 --cache-type-v q4_0 \
+              --batch-size 256 --ubatch-size 256 \
+              --threads 10 --threads-batch 16 \
+              --parallel 1 --prio 2 --jinja
+            ;;
+          deepseek)
+            exec /app/llama-server \
+              --model "/models/${MY_MODEL}" \
+              --alias "${MY_MODEL_ALIAS}" \
+              --host 0.0.0.0 \
+              --port "${LLAMA_PORT}" \
+              --n-gpu-layers 999 \
+              --ctx-size 32768 \
+              --temp 0.6 \
+              --batch-size 512 --ubatch-size 512 \
+              --flash-attn on \
+              --cache-type-k q4_0 --cache-type-v q4_0 \
+              --threads 10 --threads-batch 16 \
+              --parallel 1 --prio 2 --jinja
+            ;;
+          qwen)
+            exec /app/llama-server \
+              --model "/models/${MY_MODEL}" \
+              --alias "${MY_MODEL_ALIAS}" \
+              --host 0.0.0.0 \
+              --port "${LLAMA_PORT}" \
+              --n-gpu-layers 999 --n-cpu-moe 22 \
+              --ctx-size 32768 \
+              --flash-attn on \
+              --cache-type-k q4_0 --cache-type-v q4_0 \
+              --threads 10 --threads-batch 16 \
+              --batch-size 512 --ubatch-size 512 \
+              --temp 0 --top-k 1 \
+              --jinja --parallel 1
+            ;;
+          *)
+            echo 'Unknown model type'; exit 1
+            ;;
+        esac
+    restart: unless-stopped
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "3000:8080"
+    volumes:
+      - ./open-webui:/app/backend/data
+    environment:
+      # This points Open WebUI to your llama.cpp container
+      - "OPENAI_API_BASE_URL=http://llama:${LLAMA_PORT}/v1"
+      - "OPENAI_API_KEY=sk-not-needed"
+    restart: unless-stopped
+  searxng:
+    container_name: searxng
+    image: searxng/searxng:latest
+    ports:
+      - "${SEARXNG_PORT}:${SEARXNG_PORT}"
+    volumes:
+      - ./searxng:/etc/searxng # Where your settings.yml will live
+    restart: unless-stopped
