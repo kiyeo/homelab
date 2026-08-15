@@ -1,7 +1,7 @@
 # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
 services:
   pihole:
-    image: pihole/pihole:2026.05.0
+    image: pihole/pihole:2026.07.2
     container_name: pihole
     network_mode: container:vpn
     depends_on:

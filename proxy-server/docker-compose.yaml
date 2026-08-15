@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: jc21/nginx-proxy-manager:2.14.0
+    image: jc21/nginx-proxy-manager:2.15.1
     container_name: nginx
     restart: unless-stopped
     network_mode: container:vpn

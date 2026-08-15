@@ -1,6 +1,6 @@
 services:
   vpn:
-    image: tailscale/tailscale:v1.96.5
+    image: tailscale/tailscale:v1.98.10
     container_name: vpn
     restart: unless-stopped
     hostname: media-server

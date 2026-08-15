@@ -11,7 +11,7 @@ name: immich
 
 services:
   immich-ts:
-    image: tailscale/tailscale:v1.96.5
+    image: tailscale/tailscale:v1.98.10
     container_name: immich-ts
     restart: unless-stopped
     hostname: immich
@@ -99,5 +99,5 @@ volumes:
     driver: local
     driver_opts:
       type: cifs
-      o: "credentials=../.credentials,uid=1000,gid=1000,vers=3.0"
+      o: "username=${USERNAME},uid=1000,gid=1000,vers=3.0"
       device: "//127.0.0.1/shared/immich"
